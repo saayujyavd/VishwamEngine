@@ -1,2 +1,2 @@
-# SquishEngine
-My Squish game engine
+# VishwamEngine
+My Vishwam game engine
