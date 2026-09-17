@@ -1,5 +1,5 @@
 /*
-* Title : 3D Cube
+* Title : Vishwam Engine
 * Date : 16 - 09 -2026
 * Author : Saayujya Deshpande
 * Technology Used : FreeGLUT
@@ -21,23 +21,6 @@
 #define WIN_HEIGHT 600
 
 #define radians(ang) ang * 3.141592f / 180.0f
-
-// class definitions
-class KeyHandler
-{
-	// variables
-	unsigned char key;
-	int keyX, keyY;
-
-public:
-	// function prototypes
-	void keyHandler(void);
-
-	// constructor definitions
-	KeyHandler() {}
-	KeyHandler(unsigned char k, int x, int y) :
-		key(k), keyX(x), keyY(y) {}
-};
 
 // typedefs
 typedef struct Point
@@ -87,6 +70,12 @@ typedef struct Point
 		return(sqrtf(x * x + y * y +
 			z * z));
 	}
+	GLfloat* vect(void)
+	{
+		GLfloat* v = new GLfloat[3];
+		v[0] = x; v[1] = y; v[2] = z;
+		return(v);
+	}
 	Point unitv(void)
 	{
 		GLfloat mag = magnitude();
@@ -99,12 +88,64 @@ typedef struct Point
 typedef Point Color;
 typedef Point vec3;
 
+// class definitions
+class KeyHandler
+{
+	// variables
+	unsigned char key;
+	int keyX, keyY;
+
+public:
+	// function prototypes
+	void keyHandler(void);
+
+	// constructor definitions
+	KeyHandler() {}
+	KeyHandler(unsigned char k, int x, int y) :
+		key(k), keyX(x), keyY(y) {}
+};
+
+class Sphere
+{
+	// variables
+	GLUquadric* quadric = NULL;
+	Color col;
+	GLfloat rad;
+
+public:
+	// constructor definitions
+	Sphere(void) {}
+	Sphere(Color& color, GLfloat radius) : col(color),
+		rad(radius) {}
+
+	// function definitions
+	void draw(void)
+	{
+		// code
+		if (quadric == NULL)
+			quadric = gluNewQuadric();
+		else
+		{
+			glColor3fv(col.vect());
+			gluSphere(quadric, rad, 360, 360);
+		}
+	}
+
+	// destructor definitions
+	~Sphere(void)
+	{
+		gluDeleteQuadric(quadric);
+		quadric = NULL;
+	}
+};
+
 // global variables
 BOOL bFullscreen = FALSE;
 BOOL bIsKeydown = FALSE;
 BOOL bRmbDown = FALSE;
 
 KeyHandler keyhandler;
+Sphere* sky = NULL;
 
 int winwidth = WIN_WIDTH;
 int winheight = WIN_HEIGHT;
@@ -336,6 +377,11 @@ void update(void)
 void uninitialize(void)
 {
 	// code
+	if (sky)
+	{
+		sky->~Sphere();
+		sky = NULL;
+	}
 	FreeConsole();
 }
 
@@ -392,12 +438,50 @@ void console(void)
 void scene(void)
 {
 	// function prototypes
-	void cube(void);
 	void grid(void);
+	void cube(void);
 
 	// code
-	cube();
+	if (sky == NULL)
+	{
+		sky = new Sphere(
+			Color(0.282f, 0.584f, 0.859f),
+			50.0f);
+	}
+
 	grid();
+	sky->draw();
+	cube();
+}
+
+void grid(void)
+{
+	// variables
+	int i_zFar = (int)zFar;
+
+	// code
+	glColor3f(0.5f, 0.5f, 0.5f);
+	glPushMatrix();
+
+	glBegin(GL_LINES);
+	for (int x = -winwidth / 2;
+		x <= winwidth / 2; ++x)
+	{
+		glVertex3f((GLfloat)x,
+			0.0f, (GLfloat)zFar);
+		glVertex3f((GLfloat)x,
+			0.0f, -(GLfloat)zFar);
+		for (int z = -zFar; z <= zFar;
+			++z)
+		{
+			glVertex3f((GLfloat)x,
+				0.0f, (GLfloat)z);
+			glVertex3f(-(GLfloat)x,
+				0.0f, (GLfloat)z);
+		}
+	}
+	glEnd();
+	glPopMatrix();
 }
 
 void cube(void)
@@ -453,35 +537,5 @@ void cube(void)
 		glVertex3f(0.25f, 0.25f, -0.5f);
 		glVertex3f(0.25f, 0.25f, 0.0f);
 		glEnd();
-	glPopMatrix();
-}
-
-void grid(void)
-{
-	// variables
-	int i_zFar = (int)zFar;
-
-	// code
-	glColor3f(0.5f, 0.5f, 0.5f);
-	glPushMatrix();
-
-	glBegin(GL_LINES);
-	for (int x = -winwidth / 2;
-		x <= winwidth / 2; ++x)
-	{
-		glVertex3f((GLfloat)x,
-			0.0f, (GLfloat)zFar);
-		glVertex3f((GLfloat)x,
-			0.0f, -(GLfloat)zFar);
-		for (int z = -zFar; z <= zFar;
-			++z)
-		{
-			glVertex3f((GLfloat)x,
-				0.0f, (GLfloat)z);
-			glVertex3f(-(GLfloat)x,
-				0.0f, (GLfloat)z);
-		}
-	}
-	glEnd();
 	glPopMatrix();
 }
