@@ -1,29 +1,6 @@
-/*
-* Title : Vishwam Engine
-* Date : 16 - 09 -2026
-* Author : Saayujya Deshpande
-* Technology Used : FreeGLUT
-* Programming Language : C Language
-* References : 
-	1. Gokhale sir's live codes
-	2. Pradnya maam's C Assignments
-*/
-/*export{*/
 #include <cstdio>
 #include <cmath>
-#include "../include/SDUT.h"
-/*}*/
-
-#ifdef _WIN32
-	#include <direct.h>
-	#define mkdir(path) _mkdir(path)
-#else
-	#include <sys/stat.h>
-	#include <sys/types.h>
-	#define mkdir(path) mkdir(path, 0777)
-#endif
-
-/*export{*/
+#include "./include/SDUT.h"
 #pragma comment(lib, "./lib/sdut.lib")
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "glu32.lib")
@@ -133,97 +110,6 @@ public:
 		quadric = NULL;
 	}
 };
-/*}*/
-
-class KeyHandler
-{
-	// variables
-	unsigned char key;
-	int keyX, keyY;
-
-public:
-	// function prototypes
-	void keyHandler(void);
-
-	// constructor definitions
-	KeyHandler() {}
-	KeyHandler(unsigned char k, int x, int y) :
-		key(k), keyX(x), keyY(y) {}
-};
-
-class Export
-{
-	// variables
-	char str[50];
-
-public:
-	// function definitions
-	void exportCode(void)
-	{
-		// variables
-		FILE* pf_export = NULL;
-		FILE* f_in = NULL;
-		int c, str_idx = 0;
-
-		// code
-		if (pf_export == NULL)
-		{
-			mkdir("./Exports");
-			if ((pf_export = fopen("Exports/OGL.cpp", "w"))
-				== NULL)
-			{
-				MessageBox(NULL, TEXT("Failed to"
-					" open file for export"),
-					TEXT("Error"), MB_OK);
-			}
-		}
-		if (f_in == NULL)
-		{
-			if ((f_in = fopen("Vishwam/src/OGL.cpp", "r"))
-				== NULL)
-			{
-				MessageBox(NULL, TEXT("Failed to"
-					" open file for reading"),
-					TEXT("Error"), MB_OK);
-			}
-		}
-
-		while (fgets(str, 50, f_in) != NULL)
-		{
-			if (strcmp(str, "/*export{*/\n") == 0)
-			{
-				while (fgets(str, 50, f_in) != NULL)
-				{
-					if (strcmp(str, "/*}*/\n") == 0)
-						break;
-					else
-						fprintf(pf_export, "%s", str);
-				}
-			}
-		}
-
-		if (f_in)
-		{
-			fclose(f_in);
-			f_in = NULL;
-		}
-		if (pf_export)
-		{
-			fclose(pf_export);
-			pf_export = NULL;
-		}
-	}
-};
-
-// global variables
-BOOL bFullscreen = FALSE;
-BOOL bIsKeydown = FALSE;
-BOOL bRmbDown = FALSE;
-
-KeyHandler keyhandler;
-Export exprt;
-
-/*export{*/
 Sphere* sky = NULL;
 
 int winwidth = WIN_WIDTH;
@@ -238,17 +124,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	void resize(int, int);
 	void render(void);
 	void update(void);
-/*}*/
-	void console(void);
-	void keyboard(unsigned char, int, int);
-	void keyUp(unsigned char, int, int);
-	void mouse(int, int, int, int);
-
-	// code
-	// first enable the console
-	console();
-
-/*export{*/
 	// then initialize & create the window
 	sdutInit(iCmdShow, (char**)lpszCmdLine);
 	sdutInitDisplayMode(SDUT_DOUBLE | SDUT_RGBA | SDUT_DEPTH);
@@ -261,11 +136,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	sdutRenderFunc(render);
 	sdutUpdateFunc(update);
 	sdutCloseFunc(uninitialize);
-/*}*/
-	sdutKeyboardFunc(keyboard);
-	sdutKeyUpFunc(keyUp);
-	sdutMouseFunc(mouse);
-/*export{*/
 	sdutMainLoop();
 
 	// flow should not come here
@@ -338,116 +208,12 @@ void render(void)
 	gluLookAt(eye.x, eye.y, eye.z,
 		lookat.x, lookat.y, lookat.z,
 		up.x, up.y, up.z);
-/*}*/
-	printf("\r(eye.x, eye.y, eye.z):"
-		" %f, %f, %f\t(lookat.x, lookat.y, "
-		"lookat.z): %f, %f, %f", eye.x, eye.y,
-		eye.z, lookat.x, lookat.y, lookat.z);
-/*export{*/
 	// draw the scene
 	scene();
 
 	// double buffering
 	sdutSwapBuffers();
 }
-/*}*/
-
-void keyboard(unsigned char key, int x, int y)
-{	
-	// code
-	if (bIsKeydown == FALSE)
-	{
-		bIsKeydown = TRUE;
-		keyhandler = KeyHandler(key, x, y);
-	}
-	switch (key)
-	{
-	case 'F':
-	case 'f':
-		if (bFullscreen)
-		{
-			sdutLeaveFullscreen();
-			bFullscreen = FALSE;
-		}
-		else
-		{
-			sdutFullscreen();
-			bFullscreen = TRUE;
-		}
-		break;
-
-	case 'E':
-	case 'e':
-		exprt.exportCode();
-		break;
-
-	default:
-		break;
-	}
-}
-
-void keyUp(unsigned char key, int x, int y)
-{
-	if (bIsKeydown == TRUE)
-		bIsKeydown = FALSE;
-}
-
-void mouse(int button, int state, int x, int y)
-{
-	// variables
-	static GLfloat yaw_rad = 0.0f;
-	static GLfloat pitch_rad = 0.0f;
-	const GLfloat sensitivity = 0.1f;
-	static int prevOGLx = 0;
-	static int prevOGLy = 0;
-
-	// code
-	switch (button)
-	{
-	case SDUT_RIGHT_BUTTON:
-		if (state == SDUT_DOWN)
-		{
-			bRmbDown = TRUE;
-			prevOGLx = x;
-			prevOGLy = y;
-		}
-		else
-		{
-			bRmbDown = FALSE;
-		}
-		break;
-
-	case SDUT_MOUSE:
-		if (bRmbDown && (state == SDUT_MOVE))
-		{
-			yaw_rad += radians((x - prevOGLx)
-				* sensitivity);
-			pitch_rad += radians((prevOGLy - y)
-				* sensitivity);
-
-			if (pitch_rad > radians(89.0f))
-				pitch_rad = radians(89.0f);
-			else if (pitch_rad < radians(-89.0f))
-				pitch_rad = radians(-89.0f);
-
-			lookdir.x = cosf(pitch_rad)
-				* sinf(yaw_rad);
-			lookdir.y = sinf(pitch_rad);
-			lookdir.z = -cosf(pitch_rad)
-				* cosf(yaw_rad);
-			lookdir = lookdir.unitv();
-
-			prevOGLx = x;
-			prevOGLy = y;
-		}
-		break;
-
-	default:
-		break;
-	}
-}
-
-/*export{*/
 GLfloat currtime = 0.0f;
 
 void update(void)
@@ -459,10 +225,6 @@ void update(void)
 	angCube += 1.0f;
 	if (angCube >= 360.0f)
 		angCube = 0.0f;
-/*}*/
-	if (bIsKeydown)
-		keyhandler.keyHandler();
-/*export{*/
 }
 
 void uninitialize(void)
@@ -475,65 +237,9 @@ void uninitialize(void)
 	}
 	FreeConsole();
 }
-/*}*/
-
-void KeyHandler::keyHandler(void)
-{
-	// code
-	switch (key)
-	{
-	case 'W':
-	case 'w':
-		eye += lookdir.unitv() * 0.1f;
-		break;
-
-	case 'S':
-	case 's':
-		eye -= lookdir.unitv() * 0.1f;
-		break;
-
-	case 'A':
-	case 'a':
-		eye -= vec3(lookdir * up).unitv() *
-			0.1f;
-		break;
-
-	case 'D':
-	case 'd':
-		eye += vec3(lookdir * up).unitv() *
-			0.1f;
-		break;
-
-	case VK_ESCAPE:
-		sdutLeaveMainLoop();
-		break;
-
-	default:
-		break;
-	}
-}
-
-void console(void)
-{
-	// variables
-	FILE* fout = NULL, *ferr = NULL;
-	FILE* fin = NULL;
-
-	// code
-	AllocConsole();
-	freopen_s(&fout, "CONOUT$", "w", stdout);
-	freopen_s(&ferr, "CONOUT$", "w", stderr);
-	freopen_s(&fin, "CONOUT$", "r", stdin);
-	printf("console log enabled\n");
-}
-
-/*export{*/
 void scene(void)
 {
 	// function prototypes
-/*}*/
-	void grid(void);
-/*export{*/
 	void cube(void);
 
 	// code
@@ -543,45 +249,9 @@ void scene(void)
 			Color(0.282f, 0.584f, 0.859f),
 			50.0f);
 	}
-/*}*/
-	grid();
-/*export{*/
 	sky->draw();
 	cube();
 }
-/*}*/
-
-void grid(void)
-{
-	// variables
-	int i_zFar = (int)zFar;
-
-	// code
-	glColor3f(0.5f, 0.5f, 0.5f);
-	glPushMatrix();
-
-	glBegin(GL_LINES);
-	for (int x = -winwidth / 2;
-		x <= winwidth / 2; ++x)
-	{
-		glVertex3f((GLfloat)x,
-			0.0f, (GLfloat)zFar);
-		glVertex3f((GLfloat)x,
-			0.0f, -(GLfloat)zFar);
-		for (int z = -zFar; z <= zFar;
-			++z)
-		{
-			glVertex3f((GLfloat)x,
-				0.0f, (GLfloat)z);
-			glVertex3f(-(GLfloat)x,
-				0.0f, (GLfloat)z);
-		}
-	}
-	glEnd();
-	glPopMatrix();
-}
-
-/*export{*/
 void cube(void)
 {
 	// code
@@ -637,4 +307,3 @@ void cube(void)
 		glEnd();
 	glPopMatrix();
 }
-/*}*/

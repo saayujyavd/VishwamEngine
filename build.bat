@@ -9,7 +9,7 @@ cd ./src/
 move ./Icon.res ../rsc/
 cd..
 
-link.exe /OUT:Vishwam.exe ./*.obj ./rsc/Icon.res
+link.exe /OUT:Vishwam.exe ./*.obj ./rsc/Icon.res user32.lib
 del *.obj
 
 move ./Vishwam.exe ../
