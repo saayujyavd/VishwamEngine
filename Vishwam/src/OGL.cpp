@@ -124,6 +124,9 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 extern IMGUI_IMPL_API LRESULT
 	ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
 
+template <typename T>
+void ImGuiUpdate(void (*)(T), T);
+
 // global variables
 HWND ghwnd = NULL;
 HDC ghdc = NULL;
@@ -540,6 +543,27 @@ int initialize(void)
 	// print OGL info
 	printGLInfo();
 
+	// enable depth
+	// give smooth coloring
+	glShadeModel(GL_SMOOTH);
+
+	// will make all vals. 1.0 in depth buffer
+	// in render function
+	glClearDepth(1.0);
+
+	// if all vals. are 1.0 in depth then
+	// how to know which is ahead/behind?
+	// for this we enable depth test
+	glEnable(GL_DEPTH_TEST);
+
+	// which test to enable?
+	// LEQUAL: less than equal
+	// those pixels which are ahead of
+	// 1.0 will have depth
+	glDepthFunc(GL_LEQUAL);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT,
+		GL_NICEST);
+
 	// start rendering API
 	// choose screen clearing color: blue
 	// glClearColor() just chooses color
@@ -606,7 +630,7 @@ void render(void)
 	// code
 	// clears screen with the color
 	// chosen in glClearColor()
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -846,8 +870,11 @@ void scene(void)
 	void land(Color&);
 	void ImGuiUpdate(void (*)(void));
 	
-	land(Color(0.0f, 1.0f, 0.0f));
 	grid();
+	glPushMatrix();
+	glTranslatef(0.0f, -0.01f, 0.0f);
+	land(Color(0.0f, 1.0f, 0.0f));
+	glPopMatrix();
 }
 
 void land(Color& color)
@@ -1223,7 +1250,8 @@ void uninitImGui(void)
 	ImGui::DestroyContext();
 }
 
-void ImGuiUpdate(void (*func)(void))
+template <typename T>
+void ImGuiUpdate(void (*func)(T p), T param)
 {
 	// code
 	glPushMatrix();
@@ -1231,7 +1259,7 @@ void ImGuiUpdate(void (*func)(void))
 	glTranslatef(X1, Y1, Z1);
 	glRotatef(ang, axisX, axisY, axisZ);
 	glScalef(X2, Y2, Z2);
-	func();
+	func(param);
 	glPopMatrix();
 
 	printf("\r%f, %f, %f, %f, %f, %f, %f,"

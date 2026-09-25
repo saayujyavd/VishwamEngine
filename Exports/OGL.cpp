@@ -65,10 +65,20 @@ typedef struct Point
 		return(Point(x + v.x,
 			y + v.y, z + v.z));
 	}
+	Point operator+(GLfloat f)
+	{
+		return(Point(x + f,
+			y + f, z + f));
+	}
 	Point operator-(Point& v)
 	{
 		return(Point(x - v.x,
 			y - v.y, z - v.z));
+	}
+	Point operator-(GLfloat f)
+	{
+		return(Point(x - f,
+			y - f, z - f));
 	}
 	Point operator*(Point& v)
 	{
@@ -130,9 +140,13 @@ ALuint alSource[] = { 0 };
 int winwidth = WIN_WIDTH;
 int winheight = WIN_HEIGHT;
 
+// global function declarations
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 extern IMGUI_IMPL_API LRESULT
 	ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
+
+template <typename T>
+void ImGuiUpdate(void (*)(T), T);
 
 // global variables
 HWND ghwnd = NULL;
@@ -550,6 +564,27 @@ int initialize(void)
 	// print OGL info
 	printGLInfo();
 
+	// enable depth
+	// give smooth coloring
+	glShadeModel(GL_SMOOTH);
+
+	// will make all vals. 1.0 in depth buffer
+	// in render function
+	glClearDepth(1.0);
+
+	// if all vals. are 1.0 in depth then
+	// how to know which is ahead/behind?
+	// for this we enable depth test
+	glEnable(GL_DEPTH_TEST);
+
+	// which test to enable?
+	// LEQUAL: less than equal
+	// those pixels which are ahead of
+	// 1.0 will have depth
+	glDepthFunc(GL_LEQUAL);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT,
+		GL_NICEST);
+
 	// start rendering API
 	// choose screen clearing color: blue
 	// glClearColor() just chooses color
@@ -616,7 +651,7 @@ void render(void)
 	// code
 	// clears screen with the color
 	// chosen in glClearColor()
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -861,10 +896,21 @@ void scene(void)
 	// code
 /*}*/
 	/*export{*/
-	land(Color(0.0f, 1.0f, 0.0f));
 	grid();
+	glPushMatrix();
+	glTranslatef(0.0f, -0.01f, 0.0f);
+	land(Color(0.0f, 1.0f, 0.0f));
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.0f, -0.009f, 0.0f);
 	road();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, 0.0f);
 	divider();
+	glPopMatrix();
 }
 /*}*/
 
@@ -872,60 +918,51 @@ void scene(void)
 void divider(void)
 {
 	// function prototypes
-	void cube(void);
+	void cube(Color&);
 
 	// code
 	glPushMatrix();
-	glColor3f(0.294f, 0.306f, 0.318f);
-	glTranslatef(0.0f, 0.25f, 2.5f);
-	glScalef(40.0f, 1.0f, 1.0f);
-	cube();
+	glTranslatef(0.1f, 0.28f, 2.312f);
+	glScalef(40.31f, 1.156f, 1.0f);
+	cube(Color(0.294f, 0.306f, 0.318f));
 	glPopMatrix();
 }
 
 void road(void)
 {
 	// function prototypes
-	void quad(Point, Point, Point, Point);
+	void quad(Color&);
 
 	// code
+	// concrete
 	glPushMatrix();
-	glColor3f(0.5f, 0.5f, 0.5f);
 	glScalef(10.0f, 0.0f, 2.234f);
-	quad(Point(1.0f, 0.0f, -1.0f),
-		Point(-1.0f, 0.0f, -1.0f),
-		Point(-1.0f, 0.0f, 1.0f),
-		Point(1.0f, 0.0f, 1.0f));
+	quad(Color(0.5f, 0.5f, 0.5f));
 	glPopMatrix();
 
+	// white strip
 	glPushMatrix();
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glTranslatef(0.0f, 0.015f, 0.0f);
 	glScalef(10.0f, 0.0f, 0.1f);
-	quad(Point(1.0f, 0.0f, -1.0f),
-		Point(-1.0f, 0.0f, -1.0f),
-		Point(-1.0f, 0.0f, 1.0f),
-		Point(1.0f, 0.0f, 1.0f));
+	quad(Color(1.0f, 1.0f, 1.0f));
 	glPopMatrix();
 }
 
 void land(Color& color)
 {
 	// function prototypes
-	void quad(Point, Point, Point, Point);
+	void quad(Color&);
 
 	// variables
 	GLfloat halfwidth = (GLfloat)winwidth / 2.0f;
 	GLfloat halfdepth = (GLfloat)zFar / 2.0f;
 
 	// code
-	glColor3f(color.x, color.y, color.z);
-	quad(Point(halfwidth, -0.01f, -halfdepth),
-		Point(-halfwidth, -0.01f, -halfdepth),
-		Point(-halfwidth, -0.01f, halfdepth),
-		Point(halfwidth, -0.01f, halfdepth));
+	glScalef(halfwidth, 0.0f, halfdepth);
+	quad(color);
 }
 
-void cube(void)
+void cube(Color& col)
 {
 	// function prototypes
 	void quad(Point, Point, Point, Point);
@@ -934,16 +971,19 @@ void cube(void)
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, 0.25f);
 
+	glColor3fv(Color(col - 0.05f).vect());
 	quad(Point(0.25f, 0.25f, 0.0f),
 		Point(-0.25f, 0.25f, 0.0f),
 		Point(-0.25f, -0.25f, 0.0f),
 		Point(0.25f, -0.25f, 0.0f));
 
+	glColor3fv(col.vect());
 	quad(Point(0.25f, 0.25f, -0.5f),
 		Point(-0.25f, 0.25f, -0.5f),
 		Point(-0.25f, -0.25f, -0.5f),
 		Point(0.25f, -0.25f, -0.5f));
 
+	glColor3fv(Color(col + 0.05f).vect());
 	quad(Point(0.25f, 0.25f, 0.0f),
 		Point(0.25f, 0.25f, -0.5f),
 		Point(-0.25f, 0.25f, -0.5f),
@@ -964,6 +1004,17 @@ void cube(void)
 		Point(0.25f, 0.25f, -0.5f),
 		Point(0.25f, 0.25f, 0.0f));
 	glPopMatrix();
+}
+
+void quad(Color& col)
+{
+	glColor3fv(col.vect());
+	glBegin(GL_QUADS);
+	glVertex3f(1.0f, 0.0f, -1.0f);
+	glVertex3f(-1.0f, 0.0f, -1.0f);
+	glVertex3f(-1.0f, 0.0f, 1.0f);
+	glVertex3f(1.0f, 0.0f, 1.0f);
+	glEnd();
 }
 
 void quad(Point a, Point b, Point c,
@@ -1281,7 +1332,8 @@ void uninitImGui(void)
 	ImGui::DestroyContext();
 }
 
-void ImGuiUpdate(void (*func)(void))
+template <typename T>
+void ImGuiUpdate(void (*func)(T p), T param)
 {
 	// code
 	glPushMatrix();
@@ -1289,7 +1341,7 @@ void ImGuiUpdate(void (*func)(void))
 	glTranslatef(X1, Y1, Z1);
 	glRotatef(ang, axisX, axisY, axisZ);
 	glScalef(X2, Y2, Z2);
-	func();
+	func(param);
 	glPopMatrix();
 
 	printf("\r%f, %f, %f, %f, %f, %f, %f,"
