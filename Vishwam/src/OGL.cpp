@@ -1,8 +1,21 @@
+/*
+* Title : Blue screen
+* Date : 13 - 09 -2026
+* Author : Saayujya Deshpande
+* Technology Used : Win32 SDK
+* Programming Language : C++ Language
+* References:
+	1. Gokhale sir's live code
+*/
+
 // header files
 #include <windows.h>
-#include <stdio.h>  // for file io
-#include <stdlib.h> // for exit()
-#include <math.h>
+#include <cstdio>  // for file io
+#include <cstdlib> // for exit()
+#include <cmath>
+#include <vector>
+#include <string>
+using namespace std;
 
 // OGL related headers
 #include <gl/GL.h>
@@ -11,8 +24,8 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 
-#include "../include/SDUT.h"
 #include "../include/OGL.h"
+#include "../include/SDUT.h"
 
 // link with OGL import library
 #pragma comment(lib, "opengl32.lib")
@@ -55,10 +68,20 @@ typedef struct Point
 		return(Point(x + v.x,
 			y + v.y, z + v.z));
 	}
+	Point operator+(GLfloat f)
+	{
+		return(Point(x + f,
+			y + f, z + f));
+	}
 	Point operator-(Point& v)
 	{
 		return(Point(x - v.x,
 			y - v.y, z - v.z));
+	}
+	Point operator-(GLfloat f)
+	{
+		return(Point(x - f,
+			y - f, z - f));
 	}
 	Point operator*(Point& v)
 	{
@@ -120,12 +143,10 @@ ALuint alSource[] = { 0 };
 int winwidth = WIN_WIDTH;
 int winheight = WIN_HEIGHT;
 
+// global function declarations
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 extern IMGUI_IMPL_API LRESULT
 	ImGui_ImplWin32_WndProcHandler(HWND, UINT, WPARAM, LPARAM);
-
-template <typename T>
-void ImGuiUpdate(void (*)(T), T);
 
 // global variables
 HWND ghwnd = NULL;
@@ -855,12 +876,6 @@ void KeyHandler::keyHandler(void)
 	}
 }
 
-GLfloat X1 = 0.0f, Y1 = 0.0f, Z1 = 0.0f;
-GLfloat X2 = 1.0f, Y2 = 0.0f, Z2 = 1.0f;
-GLfloat X3 = 0.5f, Y3 = 0.5f, Z3 = 0.5f;
-GLfloat ang = 0.0f, axisX = 0.0f;
-GLfloat axisY = 1.0f, axisZ = 0.0f;
-
 void scene(void)
 {
 	// function prototypes
@@ -868,33 +883,190 @@ void scene(void)
 	void grid(void);
 	/*export{*/
 	void land(Color&);
-	void ImGuiUpdate(void (*)(void));
-	
+	void road(void);
+	void divider(void);
+	void dropArea(void);
+	void wallAndCeiling(void);
+	void airportGate(void);
+	void ImGuiUpdate(void);
+
+	// code
+/*}*/
+	/*export{*/
 	grid();
 	glPushMatrix();
 	glTranslatef(0.0f, -0.01f, 0.0f);
 	land(Color(0.0f, 1.0f, 0.0f));
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.0f, -0.009f, 0.0f);
+	road();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.0f, -0.009f, 0.0f);
+	divider();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.0f, -0.009f, 0.0f);
+	dropArea();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.0f, -0.009f, 0.0f);
+	wallAndCeiling();
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.0f, -0.009f, 0.0f);
+	airportGate();
+	glPopMatrix();
+
+	ImGuiUpdate();
+}
+/*}*/
+
+/*export{*/
+void airportGate(void)
+{
+	// function prototypes
+	void cube(Color&);
+
+	// code
+	glPushMatrix();
+	glTranslatef(2.41f, 1.0f, -4.770);
+	glScalef(0.100, 8.000, -0.205);
+	cube(Color(0.735f, 0.735f, 0.735f));
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(-1.3f, 1.0f, -4.77f);
+	glScalef(0.1f, 8.0f, -0.205f);
+	cube(Color(0.735f, 0.735f, 0.735f));
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.556f, 3.0f, -4.77f);
+	glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+	glScalef(0.1f, 7.5f, -0.205f);
+	cube(Color(0.735f, 0.735f, 0.735f));
+	glPopMatrix();
+}
+
+void wallAndCeiling(void)
+{
+	// function prototypes
+	void quad(Color&);
+
+	// code
+	glPushMatrix();
+	glTranslatef(0.000, 2.000, -4.819);
+	glRotatef(90.000, 1.000, 0.000, 0.000);
+	glScalef(10.000, 2.000, 2.000);
+	quad(Color(0.892f, 0.892f, 0.892f));
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.000, 4.000, 0.150);
+	glScalef(10.000, 0.000, 5.000);
+	quad(Color(0.639f, 0.639f, 0.639f));
+	glPopMatrix();
+}
+
+void dropArea(void)
+{
+	// function prototypes
+	void cube(Color&);
+	void quad(Color&);
+
+	// code
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, -2.33f);
+	glScalef(40.0f, 0.6f, 0.4f);
+	cube(Color(0.294f, 0.306f, 0.318f));
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, -3.614f);
+	glScalef(10.0f, 0.0f, 1.2f);
+	quad(Color(0.753f, 0.753f, 0.753f));
+	glPopMatrix();
+}
+
+void divider(void)
+{
+	// function prototypes
+	void cube(Color&);
+	void quad(Color&);
+
+	// code
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, 2.3f);
+	glScalef(40.0f, 0.5f, 0.3f);
+	cube(Color(0.294f, 0.306f, 0.318f));
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, 2.7f);
+	glScalef(10.0f, 0.0f, 0.5f);
+	quad(Color(0.8f, 0.728f, 0.783f));
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, 3.27f);
+	glScalef(40.0f, 0.5f, 0.3f);
+	cube(Color(0.294f, 0.306f, 0.318f));
+	glPopMatrix();
+}
+
+void road(void)
+{
+	// function prototypes
+	void quad(Color&);
+
+	// code
+	// concrete
+	glPushMatrix();
+	glScalef(10.0f, 0.0f, 2.234f);
+	quad(Color(0.5f, 0.5f, 0.5f));
+	glPopMatrix();
+
+	// white strip
+	glPushMatrix();
+	glTranslatef(0.0f, 0.015f, 0.0f);
+	glScalef(10.0f, 0.0f, 0.1f);
+	quad(Color(1.0f, 1.0f, 1.0f));
 	glPopMatrix();
 }
 
 void land(Color& color)
 {
 	// function prototypes
-	void quad(Point, Point, Point, Point);
+	void quad(Color&);
 
 	// variables
 	GLfloat halfwidth = (GLfloat)winwidth / 2.0f;
 	GLfloat halfdepth = (GLfloat)zFar / 2.0f;
 
 	// code
-	glColor3f(color.x, color.y, color.z);
-	quad(Point(halfwidth, -0.01f, -halfdepth),
-		Point(-halfwidth, -0.01f, -halfdepth),
-		Point(-halfwidth, -0.01f, halfdepth),
-		Point(halfwidth, -0.01f, halfdepth));
+	glScalef(halfwidth, 0.0f, halfdepth);
+	quad(color);
 }
 
-void cube(void)
+void quad(Color& col)
+{
+	glColor3fv(col.vect());
+	glBegin(GL_QUADS);
+	glVertex3f(1.0f, 0.0f, -1.0f);
+	glVertex3f(-1.0f, 0.0f, -1.0f);
+	glVertex3f(-1.0f, 0.0f, 1.0f);
+	glVertex3f(1.0f, 0.0f, 1.0f);
+	glEnd();
+}
+
+void cube(Color& col)
 {
 	// function prototypes
 	void quad(Point, Point, Point, Point);
@@ -903,31 +1075,37 @@ void cube(void)
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, 0.25f);
 
+	glColor3fv(Color(col - 0.05f).vect());
 	quad(Point(0.25f, 0.25f, 0.0f),
 		Point(-0.25f, 0.25f, 0.0f),
 		Point(-0.25f, -0.25f, 0.0f),
 		Point(0.25f, -0.25f, 0.0f));
 
+	glColor3fv(col.vect());
 	quad(Point(0.25f, 0.25f, -0.5f),
 		Point(-0.25f, 0.25f, -0.5f),
 		Point(-0.25f, -0.25f, -0.5f),
 		Point(0.25f, -0.25f, -0.5f));
 
+	glColor3fv(Color(col + 0.05f).vect());
 	quad(Point(0.25f, 0.25f, 0.0f),
 		Point(0.25f, 0.25f, -0.5f),
 		Point(-0.25f, 0.25f, -0.5f),
 		Point(-0.25f, 0.25f, 0.0f));
 
+	glColor3fv(Color(col - 0.03f).vect());
 	quad(Point(-0.25f, 0.25f, 0.0f),
 		Point(-0.25f, 0.25f, -0.5f),
 		Point(-0.25f, -0.25f, -0.5f),
 		Point(-0.25f, -0.25f, 0.0f));
 
+	glColor3fv(Color(col + 0.03f).vect());
 	quad(Point(-0.25f, -0.25f, 0.0f),
 		Point(-0.25f, -0.25f, -0.5f),
 		Point(0.25f, -0.25f, -0.5f),
 		Point(0.25f, -0.25f, 0.0f));
 
+	glColor3fv(Color(col - 0.01f).vect());
 	quad(Point(0.25f, -0.25f, 0.0f),
 		Point(0.25f, -0.25f, -0.5f),
 		Point(0.25f, 0.25f, -0.5f),
@@ -945,6 +1123,56 @@ void quad(Point a, Point b, Point c,
 	glVertex3f(d.x, d.y, d.z);
 	glEnd();
 }
+
+class Object
+{
+	// variables
+public:
+	Color color = Color(0.0f, 0.0f, 0.0f);
+	GLfloat posX = 0.0f, posY = 0.0f, posZ = 0.0f;
+	GLfloat sizeX = 1.0f, sizeY = 1.0f, sizeZ = 1.0f;
+	GLfloat ang = 0.0f;
+	GLfloat axisX = 0.0f, axisY = 0.0f, axisZ = 0.0f;
+
+	// function prototypes
+	virtual void draw(void) = 0;
+};
+
+class Quad : public Object
+{
+	// function definitions
+	void draw(void) override
+	{
+		glPushMatrix();
+		glColor3fv(color.vect());
+		glTranslatef(posX, posY, posZ);
+		glRotatef(ang, axisX, axisY, axisZ);
+		glScalef(sizeX, sizeY, sizeZ);
+
+		glBegin(GL_QUADS);
+		glVertex3f(1.0f, 0.0f, -1.0f);
+		glVertex3f(-1.0f, 0.0f, -1.0f);
+		glVertex3f(-1.0f, 0.0f, 1.0f);
+		glVertex3f(1.0f, 0.0f, 1.0f);
+
+		glEnd();
+		glPopMatrix();
+	}
+};
+
+class Cube : public Object
+{
+	// function definitions
+	void draw(void) override
+	{
+		glPushMatrix();
+		glTranslatef(posX, posY, posZ);
+		glRotatef(ang, axisX, axisY, axisZ);
+		glScalef(sizeX, sizeY, sizeZ);
+		cube(Color(color.x, color.y, color.z));
+		glPopMatrix();
+	}
+};
 
 void person(void)
 {
@@ -1113,7 +1341,7 @@ void initALAud(void)
 		printf("err: alGenBuffers()\n");
 
 	// load test.wav file if required
-	alutLoadWAVFile("rsc/OutDoorFootsteps.wav", &alFormat,
+	alutLoadWAVFile("Vishwam/rsc/OutDoorFootsteps.wav", &alFormat,
 		&alData, &alSize, &alFreq, &alLoop);
 	if (alGetError() != AL_NO_ERROR)
 	{
@@ -1195,12 +1423,17 @@ void ImGuiFrame(void)
 	ImGui::NewFrame();
 }
 
+BOOL bImGuiExport = FALSE;
+BOOL bImGuiNewCube = FALSE;
+
+vector<Object*> objects;
+vector<string> objlist;
+int objIdx = -1;
+
 void ImGuiUI(void)
 {
 	// variables
-	static BOOL bXRotation = FALSE;
-	static BOOL bYRotation = FALSE;
-	static BOOL bZRotation = FALSE;
+	BOOL bObjSelected = FALSE;
 
 	// code
 	ImGui::Begin("ImGui Wnd");
@@ -1209,26 +1442,65 @@ void ImGuiUI(void)
 	ImGui::Text("FPS: %.1f",
 		ImGui::GetIO().Framerate);
 
-	ImGui::Text("Color:");
-	ImGui::SliderFloat("R", &X3, 0.0f, 1.0f);
-	ImGui::SliderFloat("G", &Y3, 0.0f, 1.0f);
-	ImGui::SliderFloat("B", &Z3, 0.0f, 1.0f);
+	if(ImGui::Button("Export code"))
+		bImGuiExport = TRUE;
 
-	ImGui::Text("Translate:");
-	ImGui::SliderFloat("X1", &X1, -100.0f, 100.0f);
-	ImGui::SliderFloat("Y1", &Y1, -100.0f, 100.0f);
-	ImGui::SliderFloat("Z1", &Z1, -100.0f, 100.0f);
+	ImGui::BeginChild("Objects", ImVec2(0, 200),
+		true);
 
-	ImGui::Text("Rotate:");
-	ImGui::SliderFloat("ang", &ang, 0.0f, 360.0f);
-	ImGui::SliderFloat("X axis", &axisX, 0.0f, 1.0f);
-	ImGui::SliderFloat("Y axis", &axisY, 0.0f, 1.0f);
-	ImGui::SliderFloat("Z axis", &axisZ, 0.0f, 1.0f);
+	for (int i = 0; i < objlist.size(); ++i)
+	{
+		if (ImGui::Selectable(objlist[i].c_str(),
+			objIdx == i))
+		{
+			objIdx = i;
+			vec3 objloc(objects[objIdx]->posX,
+				objects[objIdx]->posY,
+				objects[objIdx]->posZ);
+			eye = objloc - vec3(1.5f, -0.5f, -1.5f);
+			lookdir = objloc - eye;
+		}
+	}
+	ImGui::EndChild();
 
-	ImGui::Text("Scale:");
-	ImGui::SliderFloat("X2", &X2, -100.0f, 100.0f);
-	ImGui::SliderFloat("Y2", &Y2, -100.0f, 100.0f);
-	ImGui::SliderFloat("Z2", &Z2, -100.0f, 100.0f);
+	if (ImGui::Button("Quad"))
+	{
+		objects.push_back(new Quad());
+		objlist.push_back(to_string(objlist.size())
+			+ ") Quad");
+	}
+	if (ImGui::Button("Cube"))
+	{
+		objects.push_back(new Cube());
+		objlist.push_back(to_string(objlist.size())
+			+ ") Cube");
+	}
+	
+	if (objIdx >= 0)
+	{
+		Object* obj = objects[objIdx];
+
+		ImGui::Text("Color:");
+		ImGui::SliderFloat("R", &obj->color.x, 0.0f, 1.0f);
+		ImGui::SliderFloat("G", &obj->color.y, 0.0f, 1.0f);
+		ImGui::SliderFloat("B", &obj->color.z, 0.0f, 1.0f);
+
+		ImGui::Text("Translate:");
+		ImGui::SliderFloat("X1", &obj->posX, -100.0f, 100.0f);
+		ImGui::SliderFloat("Y1", &obj->posY, -100.0f, 100.0f);
+		ImGui::SliderFloat("Z1", &obj->posZ, -100.0f, 100.0f);
+
+		ImGui::Text("Rotate:");
+		ImGui::SliderFloat("ang", &obj->ang, 0.0f, 360.0f);
+		ImGui::SliderFloat("X axis", &obj->axisX, 0.0f, 1.0f);
+		ImGui::SliderFloat("Y axis", &obj->axisY, 0.0f, 1.0f);
+		ImGui::SliderFloat("Z axis", &obj->axisZ, 0.0f, 1.0f);
+
+		ImGui::Text("Scale:");
+		ImGui::SliderFloat("X2", &obj->sizeX, -100.0f, 100.0f);
+		ImGui::SliderFloat("Y2", &obj->sizeY, -100.0f, 100.0f);
+		ImGui::SliderFloat("Z2", &obj->sizeZ, -100.0f, 100.0f);
+	}
 
 	// end imgui UI
 	ImGui::End();
@@ -1242,27 +1514,56 @@ void ImGuiRender(void)
 		ImGui::GetDrawData());
 }
 
+void ImGuiUpdate(void)
+{
+	// variables
+	FILE* f_imgui = NULL;
+
+	// code
+	for (int i = 0; i < objects.size(); ++i)
+		objects[i]->draw();
+
+	if (f_imgui == NULL && bImGuiExport == TRUE)
+	{
+		if ((f_imgui = fopen("imgui.txt", "a"))
+			== NULL)
+		{
+			printf("err: opening imgui file\n");
+			bImGuiExport = FALSE;
+		}
+		else
+		{
+			for (int i = 0; i < objects.size(); ++i)
+			{
+				Object* obj = objects[i];
+
+				fprintf(f_imgui, "\nglPushMatrix();\n"
+					"glColor3f(%.3ff, %.3ff, %.3ff);\n"
+					"glTranslatef(%.3ff, %.3ff, %.3ff);\n"
+					"glRotatef(%.3ff, %.3ff, %.3ff, %.3ff);\n"
+					"glScalef(%.3ff, %.3ff, %.3ff);\n"
+					"%s;\n"
+					"glPopMatrix();\n", obj->color.x,
+					obj->color.y, obj->color.z, obj->posX,
+					obj->posY, obj->posZ, obj->ang,
+					obj->axisX, obj->axisY,obj->axisZ,
+					obj->sizeX, obj->sizeY, obj->sizeZ,
+					objlist[i].c_str());
+				bImGuiExport = FALSE;
+			}
+		}
+	}
+	if (f_imgui)
+	{
+		fclose(f_imgui);
+		f_imgui = NULL;
+	}
+}
+
 void uninitImGui(void)
 {
 	// code
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
-}
-
-template <typename T>
-void ImGuiUpdate(void (*func)(T p), T param)
-{
-	// code
-	glPushMatrix();
-	glColor3f(X3, Y3, Z3);
-	glTranslatef(X1, Y1, Z1);
-	glRotatef(ang, axisX, axisY, axisZ);
-	glScalef(X2, Y2, Z2);
-	func(param);
-	glPopMatrix();
-
-	printf("\r%f, %f, %f, %f, %f, %f, %f,"
-		" %f, %f, %f", X1, Y1, Z1, ang, axisX,
-		axisY, axisZ, X2, Y2, Z2);
 }
