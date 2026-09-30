@@ -116,6 +116,10 @@ typedef struct Point
 typedef Point Color;
 typedef Point vec3;
 
+// global function prototypes
+void cube(Color&);
+
+// class definitions
 class KeyHandler
 {
 	// variables
@@ -130,6 +134,127 @@ public:
 	KeyHandler() {}
 	KeyHandler(unsigned char k, int x, int y) :
 		key(k), keyX(x), keyY(y) {}
+};
+
+class Object
+{
+	// variables
+private:
+	inline static vector<Object*>* objs = nullptr;
+public:
+	Color color = Color(0.0f, 0.0f, 0.0f);
+	GLfloat posX = 0.0f, posY = 0.0f, posZ = 0.0f;
+	GLfloat sizeX = 1.0f, sizeY = 1.0f, sizeZ = 1.0f;
+	GLfloat ang = 0.0f;
+	GLfloat axisX = 0.0f, axisY = 0.0f, axisZ = 0.0f;
+
+	// function definitions
+private:
+	bool collided(Object& obj)
+	{
+		// code
+		GLfloat halfSizeX = sizeX / 4.0f;
+		GLfloat halfSizeY = sizeY / 4.0f;
+		GLfloat halfSizeZ = sizeZ / 4.0f;
+
+		GLfloat leftA = posX - sizeX / 4.0f;
+		GLfloat rightA = posX + sizeX / 4.0f;
+		GLfloat bottomA = posY - sizeY / 4.0f;
+		GLfloat topA = posY + sizeY / 4.0f;
+		GLfloat rearA = posZ - sizeZ / 4.0f;
+		GLfloat frontA = posZ + sizeZ / 4.0f;
+
+		GLfloat leftB = obj.posX - obj.sizeX / 4.0f;
+		GLfloat rightB = obj.posX + obj.sizeX / 4.0f;
+		GLfloat bottomB = obj.posY - obj.sizeY / 4.0f;
+		GLfloat topB = obj.posY + obj.sizeY / 4.0f;
+		GLfloat rearB = obj.posZ - obj.sizeZ / 4.0f;
+		GLfloat frontB = obj.posZ + obj.sizeZ / 4.0f;
+
+		if ((leftA <= rightB && rightA >= leftB)
+			&& (bottomA <= topB && topA >= bottomB)
+			&& (rearA <= frontB && frontA >= rearB))
+		{
+			if (leftA >= leftB)
+				posX += rightB - leftA + (obj.sizeX / 4.0f);
+			else
+				posX -= rightA - leftB + (obj.sizeX / 4.0f);
+
+			if (bottomA >= bottomB)
+				posY += topB - bottomA + (obj.sizeY / 4.0f);
+			else
+				posY -= topA - bottomB + (obj.sizeY / 4.0f);
+
+			if (rearA >= rearB)
+				posZ += frontB - rearA + (obj.sizeZ / 4.0f);
+			else
+				posZ -= frontA - rearB + (obj.sizeZ / 4.0f);
+
+			return(true);
+		}
+		else return(false);
+	}
+
+protected:
+	virtual void draw(void) = 0;
+
+public:
+	static void drawObjects(vector<Object*>& objects)
+	{
+		objs = &objects;
+		for (int i = 0; i < objects.size(); ++i)
+			objects[i]->draw();
+	}
+
+	static void checkCollisions(void)
+	{
+		if (objs == nullptr) return;
+		for (int i = 0; i < objs->size(); ++i)
+		{
+			Object* obj = (*objs)[i];
+			for (int j = i + 1; j < objs->size(); ++j)
+			{
+				if (obj->collided(*(*objs)[j]))
+					printf("collision\n");
+			}
+		}
+	}
+};
+
+class Quad : public Object
+{
+	// function definitions
+	void draw(void) override
+	{
+		glPushMatrix();
+		glColor3fv(color.vect());
+		glTranslatef(posX, posY, posZ);
+		glRotatef(ang, axisX, axisY, axisZ);
+		glScalef(sizeX, sizeY, sizeZ);
+
+		glBegin(GL_QUADS);
+		glVertex3f(1.0f, 0.0f, -1.0f);
+		glVertex3f(-1.0f, 0.0f, -1.0f);
+		glVertex3f(-1.0f, 0.0f, 1.0f);
+		glVertex3f(1.0f, 0.0f, 1.0f);
+
+		glEnd();
+		glPopMatrix();
+	}
+};
+
+class Cube : public Object
+{
+	// function definitions
+	void draw(void) override
+	{
+		glPushMatrix();
+		glTranslatef(posX, posY, posZ);
+		glRotatef(ang, axisX, axisY, axisZ);
+		glScalef(sizeX, sizeY, sizeZ);
+		cube(Color(color.x, color.y, color.z));
+		glPopMatrix();
+	}
 };
 
 BOOL bFootstepsAud = FALSE;
@@ -879,180 +1004,12 @@ void KeyHandler::keyHandler(void)
 void scene(void)
 {
 	// function prototypes
-/*}*/
 	void grid(void);
-	/*export{*/
-	void land(Color&);
-	void road(void);
-	void divider(void);
-	void dropArea(void);
-	void wallAndCeiling(void);
-	void airportGate(void);
 	void ImGuiUpdate(void);
 
 	// code
-/*}*/
-	/*export{*/
 	grid();
-	glPushMatrix();
-	glTranslatef(0.0f, -0.01f, 0.0f);
-	land(Color(0.0f, 1.0f, 0.0f));
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(0.0f, -0.009f, 0.0f);
-	road();
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(0.0f, -0.009f, 0.0f);
-	divider();
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(0.0f, -0.009f, 0.0f);
-	dropArea();
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(0.0f, -0.009f, 0.0f);
-	wallAndCeiling();
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(0.0f, -0.009f, 0.0f);
-	airportGate();
-	glPopMatrix();
-
 	ImGuiUpdate();
-}
-/*}*/
-
-/*export{*/
-void airportGate(void)
-{
-	// function prototypes
-	void cube(Color&);
-
-	// code
-	glPushMatrix();
-	glTranslatef(2.41f, 1.0f, -4.770);
-	glScalef(0.100, 8.000, -0.205);
-	cube(Color(0.735f, 0.735f, 0.735f));
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(-1.3f, 1.0f, -4.77f);
-	glScalef(0.1f, 8.0f, -0.205f);
-	cube(Color(0.735f, 0.735f, 0.735f));
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(0.556f, 3.0f, -4.77f);
-	glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
-	glScalef(0.1f, 7.5f, -0.205f);
-	cube(Color(0.735f, 0.735f, 0.735f));
-	glPopMatrix();
-}
-
-void wallAndCeiling(void)
-{
-	// function prototypes
-	void quad(Color&);
-
-	// code
-	glPushMatrix();
-	glTranslatef(0.000, 2.000, -4.819);
-	glRotatef(90.000, 1.000, 0.000, 0.000);
-	glScalef(10.000, 2.000, 2.000);
-	quad(Color(0.892f, 0.892f, 0.892f));
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(0.000, 4.000, 0.150);
-	glScalef(10.000, 0.000, 5.000);
-	quad(Color(0.639f, 0.639f, 0.639f));
-	glPopMatrix();
-}
-
-void dropArea(void)
-{
-	// function prototypes
-	void cube(Color&);
-	void quad(Color&);
-
-	// code
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, -2.33f);
-	glScalef(40.0f, 0.6f, 0.4f);
-	cube(Color(0.294f, 0.306f, 0.318f));
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, -3.614f);
-	glScalef(10.0f, 0.0f, 1.2f);
-	quad(Color(0.753f, 0.753f, 0.753f));
-	glPopMatrix();
-}
-
-void divider(void)
-{
-	// function prototypes
-	void cube(Color&);
-	void quad(Color&);
-
-	// code
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, 2.3f);
-	glScalef(40.0f, 0.5f, 0.3f);
-	cube(Color(0.294f, 0.306f, 0.318f));
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, 2.7f);
-	glScalef(10.0f, 0.0f, 0.5f);
-	quad(Color(0.8f, 0.728f, 0.783f));
-	glPopMatrix();
-
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, 3.27f);
-	glScalef(40.0f, 0.5f, 0.3f);
-	cube(Color(0.294f, 0.306f, 0.318f));
-	glPopMatrix();
-}
-
-void road(void)
-{
-	// function prototypes
-	void quad(Color&);
-
-	// code
-	// concrete
-	glPushMatrix();
-	glScalef(10.0f, 0.0f, 2.234f);
-	quad(Color(0.5f, 0.5f, 0.5f));
-	glPopMatrix();
-
-	// white strip
-	glPushMatrix();
-	glTranslatef(0.0f, 0.015f, 0.0f);
-	glScalef(10.0f, 0.0f, 0.1f);
-	quad(Color(1.0f, 1.0f, 1.0f));
-	glPopMatrix();
-}
-
-void land(Color& color)
-{
-	// function prototypes
-	void quad(Color&);
-
-	// variables
-	GLfloat halfwidth = (GLfloat)winwidth / 2.0f;
-	GLfloat halfdepth = (GLfloat)zFar / 2.0f;
-
-	// code
-	glScalef(halfwidth, 0.0f, halfdepth);
-	quad(color);
 }
 
 void quad(Color& col)
@@ -1123,56 +1080,6 @@ void quad(Point a, Point b, Point c,
 	glVertex3f(d.x, d.y, d.z);
 	glEnd();
 }
-
-class Object
-{
-	// variables
-public:
-	Color color = Color(0.0f, 0.0f, 0.0f);
-	GLfloat posX = 0.0f, posY = 0.0f, posZ = 0.0f;
-	GLfloat sizeX = 1.0f, sizeY = 1.0f, sizeZ = 1.0f;
-	GLfloat ang = 0.0f;
-	GLfloat axisX = 0.0f, axisY = 0.0f, axisZ = 0.0f;
-
-	// function prototypes
-	virtual void draw(void) = 0;
-};
-
-class Quad : public Object
-{
-	// function definitions
-	void draw(void) override
-	{
-		glPushMatrix();
-		glColor3fv(color.vect());
-		glTranslatef(posX, posY, posZ);
-		glRotatef(ang, axisX, axisY, axisZ);
-		glScalef(sizeX, sizeY, sizeZ);
-
-		glBegin(GL_QUADS);
-		glVertex3f(1.0f, 0.0f, -1.0f);
-		glVertex3f(-1.0f, 0.0f, -1.0f);
-		glVertex3f(-1.0f, 0.0f, 1.0f);
-		glVertex3f(1.0f, 0.0f, 1.0f);
-
-		glEnd();
-		glPopMatrix();
-	}
-};
-
-class Cube : public Object
-{
-	// function definitions
-	void draw(void) override
-	{
-		glPushMatrix();
-		glTranslatef(posX, posY, posZ);
-		glRotatef(ang, axisX, axisY, axisZ);
-		glScalef(sizeX, sizeY, sizeZ);
-		cube(Color(color.x, color.y, color.z));
-		glPopMatrix();
-	}
-};
 
 void person(void)
 {
@@ -1444,6 +1351,15 @@ void ImGuiUI(void)
 
 	if(ImGui::Button("Export code"))
 		bImGuiExport = TRUE;
+	if (ImGui::Button("Undo"))
+	{
+		if (objIdx > -1)
+			--objIdx;
+		if (objects.size() > 0)
+			objects.pop_back();
+		if (objlist.size() > 0)
+			objlist.pop_back();
+	}
 
 	ImGui::BeginChild("Objects", ImVec2(0, 200),
 		true);
@@ -1520,8 +1436,8 @@ void ImGuiUpdate(void)
 	FILE* f_imgui = NULL;
 
 	// code
-	for (int i = 0; i < objects.size(); ++i)
-		objects[i]->draw();
+	Object::drawObjects(objects);
+	Object::checkCollisions();
 
 	if (f_imgui == NULL && bImGuiExport == TRUE)
 	{
