@@ -150,13 +150,9 @@ public:
 
 	// function definitions
 private:
-	bool collided(Object& obj)
+	void handleCollision(Object& obj)
 	{
 		// code
-		GLfloat halfSizeX = sizeX / 4.0f;
-		GLfloat halfSizeY = sizeY / 4.0f;
-		GLfloat halfSizeZ = sizeZ / 4.0f;
-
 		GLfloat leftA = posX - sizeX / 4.0f;
 		GLfloat rightA = posX + sizeX / 4.0f;
 		GLfloat bottomA = posY - sizeY / 4.0f;
@@ -171,60 +167,77 @@ private:
 		GLfloat rearB = obj.posZ - obj.sizeZ / 4.0f;
 		GLfloat frontB = obj.posZ + obj.sizeZ / 4.0f;
 
-		if ((leftA <= rightB && rightA >= leftB)
-			&& (bottomA <= topB && topA >= bottomB)
-			&& (rearA <= frontB && frontA >= rearB))
+		if ((leftA < rightB && rightA > leftB)
+			&& (bottomA < topB && topA > bottomB)
+			&& (rearA < frontB && frontA > rearB))
 		{
-			if (leftA >= leftB)
-				posX += rightB - leftA + (obj.sizeX / 4.0f);
-			else
-				posX -= rightA - leftB + (obj.sizeX / 4.0f);
+			GLfloat overlapX = fmin(rightA, rightB)
+				- fmax(leftA, leftB);
+			GLfloat overlapY = fmin(topA, topB)
+				- fmax(bottomA, bottomB);
+			GLfloat overlapZ = fmin(frontA, frontB)
+				- fmax(rearA, rearB);
 
-			if (bottomA >= bottomB)
-				posY += topB - bottomA + (obj.sizeY / 4.0f);
+			if (overlapX <= overlapY &&
+				overlapX <= overlapZ)
+			{
+				if (posX >= obj.posX)
+					posX += overlapX;
+				else
+					posX -= overlapX;
+			}
+			else if (overlapY <= overlapX
+				&& overlapY <= overlapZ)
+			{
+				if (posY >= obj.posY)
+					posY += overlapY;
+				else
+					posY -= overlapY;
+			}
 			else
-				posY -= topA - bottomB + (obj.sizeY / 4.0f);
-
-			if (rearA >= rearB)
-				posZ += frontB - rearA + (obj.sizeZ / 4.0f);
-			else
-				posZ -= frontA - rearB + (obj.sizeZ / 4.0f);
-
-			return(true);
+			{
+				if (posZ >= obj.posZ)
+					posZ += overlapZ;
+				else
+					posZ -= overlapZ;
+			}
 		}
-		else return(false);
 	}
 
 protected:
-	virtual void draw(void) = 0;
+	virtual void description(void) = 0;
+	virtual void updateObject(void) {};
 
 public:
 	static void drawObjects(vector<Object*>& objects)
 	{
+		// variables
 		objs = &objects;
+
+		// code
 		for (int i = 0; i < objects.size(); ++i)
-			objects[i]->draw();
+		{
+			objects[i]->description();
+			objects[i]->updateObject();
+		}
 	}
 
-	static void checkCollisions(void)
+	static void handleCollisionsOf(Object* object)
 	{
-		if (objs == nullptr) return;
+		if (objs == nullptr || object == nullptr)
+			return;
+		
+		object->description();
 		for (int i = 0; i < objs->size(); ++i)
-		{
-			Object* obj = (*objs)[i];
-			for (int j = i + 1; j < objs->size(); ++j)
-			{
-				if (obj->collided(*(*objs)[j]))
-					printf("collision\n");
-			}
-		}
+			object->handleCollision(*(*objs)[i]);
+		object->updateObject();
 	}
 };
 
 class Quad : public Object
 {
 	// function definitions
-	void draw(void) override
+	void description(void) override
 	{
 		glPushMatrix();
 		glColor3fv(color.vect());
@@ -246,7 +259,7 @@ class Quad : public Object
 class Cube : public Object
 {
 	// function definitions
-	void draw(void) override
+	void description(void) override
 	{
 		glPushMatrix();
 		glTranslatef(posX, posY, posZ);
@@ -257,6 +270,7 @@ class Cube : public Object
 	}
 };
 
+BOOL bPlayerKeyDown = FALSE;
 BOOL bFootstepsAud = FALSE;
 BOOL bIsKeydown = FALSE;
 BOOL bFreeLook = TRUE;
@@ -866,6 +880,8 @@ void keyUp(unsigned char key, int x, int y)
 			alSourceStop(alSource[0]);
 			bFootstepsAud = FALSE;
 		}
+		if(bPlayerKeyDown)
+			bPlayerKeyDown = FALSE;
 		break;
 
 	default:
@@ -959,11 +975,45 @@ void uninitialize(void)
 	}
 }
 
+class Player : public Object
+{
+	// code
+	void description(void) override
+	{
+		// code
+		if (bFreeLook == FALSE)
+		{
+			if (bFootstepsAud == FALSE &&
+				bPlayerKeyDown)
+			{
+				alSourcePlay(alSource[0]);
+				bFootstepsAud = TRUE;
+			}
+			if (bPlayerKeyDown)
+			{
+				camSinAng += 0.1f;
+				eye.y = 0.5f + (0.1f
+					* sinf(camSinAng));
+			}
+			// update player loc
+			posX = eye.x;
+			posY = 0.5f;
+			posZ = eye.z;
+		}
+	}
+
+	void updateObject(void) override
+	{
+		if (bFreeLook == FALSE)
+		{
+			eye.x = posX;
+			eye.z = posZ;
+		}
+	}
+};
+
 void KeyHandler::keyHandler(void)
 {
-	// function prototypes
-	void person(void);
-
 	// variables
 	GLfloat camspeed = 0.05f;
 
@@ -973,30 +1023,31 @@ void KeyHandler::keyHandler(void)
 	case 'W':
 	case 'w':
 		eye += lookdir.unitv() * camspeed;
-		person();
+		bPlayerKeyDown = TRUE;
 		break;
 
 	case 'S':
 	case 's':
 		eye -= lookdir.unitv() * camspeed;
-		person();
+		bPlayerKeyDown = TRUE;
 		break;
 
 	case 'A':
 	case 'a':
 		eye -= vec3(lookdir * up).unitv() *
 			camspeed;
-		person();
+		bPlayerKeyDown = TRUE;
 		break;
 
 	case 'D':
 	case 'd':
 		eye += vec3(lookdir * up).unitv() *
 			camspeed;
-		person();
+		bPlayerKeyDown = TRUE;
 		break;
 
 	default:
+		bPlayerKeyDown = FALSE;
 		break;
 	}
 }
@@ -1079,22 +1130,6 @@ void quad(Point a, Point b, Point c,
 	glVertex3f(c.x, c.y, c.z);
 	glVertex3f(d.x, d.y, d.z);
 	glEnd();
-}
-
-void person(void)
-{
-	// code
-	if (bFreeLook == FALSE)
-	{
-		if (bFootstepsAud == FALSE)
-		{
-			alSourcePlay(alSource[0]);
-			bFootstepsAud = TRUE;
-		}
-		eye.y = 0.5 + (0.1f
-			* sinf(camSinAng));
-		camSinAng += 0.1f;
-	}
 }
 
 void freeLook(int button, int state, int x, int y)
@@ -1433,11 +1468,15 @@ void ImGuiRender(void)
 void ImGuiUpdate(void)
 {
 	// variables
+	static Player* player = nullptr;
 	FILE* f_imgui = NULL;
 
 	// code
+	if (player == nullptr)
+		player = new Player();
+
 	Object::drawObjects(objects);
-	Object::checkCollisions();
+	Object::handleCollisionsOf(player);
 
 	if (f_imgui == NULL && bImGuiExport == TRUE)
 	{
