@@ -2,7 +2,11 @@
 * Title : Vishwam
 * Date : 13 - 09 -2026
 * Author : Saayujya Deshpande
+<<<<<<< HEAD
 * Technology Used : Win32 SDK, OpenGL
+=======
+* Technology Used : Win32 SDK
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 * Programming Language : C++ Language
 * References:
 	1. Gokhale sir's live code
@@ -406,6 +410,7 @@ void quadDescription(Object* obj)
 	glScalef(obj->sizeX, obj->sizeY, obj->sizeZ);
 
 	glBegin(GL_QUADS);
+<<<<<<< HEAD
 	for (int i = 0; i < 4; ++i)
 	{
 		glVertex3f(
@@ -413,6 +418,13 @@ void quadDescription(Object* obj)
 			obj->vertices[i * 3 + 1],
 			obj->vertices[i * 3 + 2]);
 	}
+=======
+	glVertex3f(1.0f, 0.0f, -1.0f);
+	glVertex3f(-1.0f, 0.0f, -1.0f);
+	glVertex3f(-1.0f, 0.0f, 1.0f);
+	glVertex3f(1.0f, 0.0f, 1.0f);
+
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 	glEnd();
 	glPopMatrix();
 }
@@ -421,18 +433,25 @@ Quad* newQuad(void)
 {
 	// variables
 	Quad* quad = (Quad*)malloc(sizeof(Quad));
+<<<<<<< HEAD
 	GLfloat vertices[] = {
 					1.0f, 0.0f, -1.0f,
 					-1.0f, 0.0f, -1.0f,
 					-1.0f, 0.0f, 1.0f,
 					1.0f, 0.0f, 1.0f };
+=======
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 
 	// code
 	if (quad != NULL)
 	{
+<<<<<<< HEAD
 		objectInit(&quad->base,
 			Object::HANDLE_COLLISION, vertices,
 			(GLuint)(sizeof(vertices) / sizeof(vertices[0])));
+=======
+		objectInit(&quad->base, Object::HANDLE_COLLISION);
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 		quad->base.description = quadDescription;
 	}
 	return(quad);
@@ -445,6 +464,7 @@ typedef struct Cube
 
 void cubeDescription(Object* obj)
 {
+<<<<<<< HEAD
 	void quad(Point, Point, Point, Point);
 
 	GLfloat r = obj->color.r;
@@ -452,11 +472,14 @@ void cubeDescription(Object* obj)
 	GLfloat b = obj->color.b;
 	GLfloat a = obj->color.a;
 
+=======
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 	glPushMatrix();
 	glTranslatef(obj->posX, obj->posY, obj->posZ);
 	glRotatef(obj->ang,
 		obj->axisX, obj->axisY, obj->axisZ);
 	glScalef(obj->sizeX, obj->sizeY, obj->sizeZ);
+<<<<<<< HEAD
 	
 	// front (z = +0.25)
 	glColor4f(r - 0.05f, g - 0.05f,
@@ -505,6 +528,10 @@ void cubeDescription(Object* obj)
 		Point(obj->vertices[15], obj->vertices[16], obj->vertices[17]),
 		Point(obj->vertices[0], obj->vertices[1], obj->vertices[2]));
 
+=======
+	cube(obj->color.r, obj->color.g, obj->color.b,
+		obj->color.a);
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 	glPopMatrix();
 }
 
@@ -512,6 +539,7 @@ Cube* newCube(void)
 {
 	// variables
 	Cube* cube = (Cube*)malloc(sizeof(Cube));
+<<<<<<< HEAD
 	GLfloat vertices[] = {
 						0.25f, 0.25f, 0.25f,
 						-0.25f, 0.25f, 0.25f,
@@ -521,13 +549,19 @@ Cube* newCube(void)
 						0.25f, 0.25f, -0.25f,
 						-0.25f, 0.25f, -0.25f,
 						-0.25f, -0.25f, -0.25f };
+=======
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 
 	// code
 	if (cube != NULL)
 	{
+<<<<<<< HEAD
 		objectInit(&cube->base,
 			Object::HANDLE_COLLISION, vertices,
 			(int)(sizeof(vertices) / sizeof(vertices[0])));
+=======
+		objectInit(&cube->base, Object::HANDLE_COLLISION);
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 		cube->base.description = cubeDescription;
 	}
 	return(cube);
@@ -566,18 +600,25 @@ TexQuad2D* newTexQuad2D(const char* filename)
 	// variables
 	TexQuad2D* quad = (TexQuad2D*)malloc(
 		sizeof(TexQuad2D));
+<<<<<<< HEAD
 	GLfloat vertices[] = {
 					1.0f, 0.0f, -1.0f,
 					-1.0f, 0.0f, -1.0f,
 					-1.0f, 0.0f, 1.0f,
 					1.0f, 0.0f, 1.0f };
+=======
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 
 	// code
 	if (quad != NULL)
 	{
+<<<<<<< HEAD
 		objectInit(&quad->base,
 			Object::NO_COLLISION, vertices,
 			(int)(sizeof(vertices) / sizeof(vertices[0])));
+=======
+		objectInit(&quad->base, Object::HANDLE_COLLISION);
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 
 		// init texCoords
 		quad->base.texCoords = (GLfloat*)calloc(
@@ -622,6 +663,7 @@ Cylinder* newCylinder(void)
 	// variables
 	Cylinder* cylinder = (Cylinder*)malloc(
 		sizeof(Cylinder));
+<<<<<<< HEAD
 	GLfloat vertices[] = {
 						0.25f, 0.25f, 0.25f,
 						-0.25f, 0.25f, 0.25f,
@@ -631,13 +673,19 @@ Cylinder* newCylinder(void)
 						0.25f, 0.25f, -0.25f,
 						-0.25f, 0.25f, -0.25f,
 						-0.25f, -0.25f, -0.25f };
+=======
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 
 	// code
 	if (cylinder != NULL)
 	{
+<<<<<<< HEAD
 		objectInit(&cylinder->base,
 			Object::HANDLE_COLLISION, vertices,
 			(int)(sizeof(vertices) / sizeof(vertices[0])));
+=======
+		objectInit(&cylinder->base, Object::HANDLE_COLLISION);
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 
 		cylinder->base.quadric =
 			gluNewQuadric();
@@ -716,13 +764,20 @@ Player* newPlayer(void)
 {
 	// variables
 	Player* player = (Player*)malloc(sizeof(Player));
+<<<<<<< HEAD
 	GLfloat v[1];
+=======
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 
 	// code
 	if (player != NULL)
 	{
+<<<<<<< HEAD
 		objectInit(&player->base,
 			Object::HANDLE_COLLISION, v, 0);
+=======
+		objectInit(&player->base, Object::HANDLE_COLLISION);
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 		player->base.description = playerDescription;
 		player->base.updateObject = updatePlayer;
 	}
@@ -1132,7 +1187,10 @@ void update(void)
 	static Player player;
 	static BOOL bPlayerInit = FALSE;
 	clock_t current_time = clock();
+<<<<<<< HEAD
 	GLfloat v[1];
+=======
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 	float time_in_milliseconds = (float)current_time;
 
 	// code
@@ -1146,8 +1204,12 @@ void update(void)
 
 	if (bPlayerInit == FALSE)
 	{
+<<<<<<< HEAD
 		objectInit(&player.base,
 			Object::HANDLE_COLLISION, v, 0);
+=======
+		objectInit(&player.base, Object::HANDLE_COLLISION);
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 		player.base.description = playerDescription;
 		player.base.updateObject = updatePlayer;
 		bPlayerInit = TRUE;
@@ -1694,7 +1756,11 @@ void ImGuiUI()
 
 	if(ImGui::Button("Export code"))
 		bImGuiExport = TRUE;
+<<<<<<< HEAD
 	if (ImGui::Button("Remove Latest Obj."))
+=======
+	if (ImGui::Button("Undo"))
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 	{
 		if (objIdx > -1)
 			--objIdx;
@@ -1774,6 +1840,7 @@ void ImGuiUI()
 	if (objIdx >= 0)
 	{
 		Object* obj = &objects.objects[objIdx];
+<<<<<<< HEAD
 		static GLfloat col[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		
 		ImGui::Text("Color:");
@@ -1825,11 +1892,43 @@ void ImGuiUI()
 			if (ImGui::SliderFloat("Base", &base, 0.0f, 100.0f)) obj->baseRad = base;
 			if (ImGui::SliderFloat("Top", &top, 0.0f, 100.0f)) obj->topRad = top;
 		}
+=======
+
+		ImGui::Text("Color:");
+		ImGui::SliderFloat("R", &obj->color.r, 0.0f, 1.0f);
+		ImGui::SliderFloat("G", &obj->color.g, 0.0f, 1.0f);
+		ImGui::SliderFloat("B", &obj->color.b, 0.0f, 1.0f);
+		ImGui::SliderFloat("A", &obj->color.a, 0.0f, 1.0f);
+
+		ImGui::Text("Translate:");
+		ImGui::SliderFloat("X1", &obj->posX, -100.0f, 100.0f);
+		ImGui::SliderFloat("Y1", &obj->posY, -100.0f, 100.0f);
+		ImGui::SliderFloat("Z1", &obj->posZ, -100.0f, 100.0f);
+
+		ImGui::Text("Rotate:");
+		ImGui::SliderFloat("ang", &obj->ang, 0.0f, 360.0f);
+		ImGui::SliderFloat("X axis", &obj->axisX, 0.0f, 1.0f);
+		ImGui::SliderFloat("Y axis", &obj->axisY, 0.0f, 1.0f);
+		ImGui::SliderFloat("Z axis", &obj->axisZ, 0.0f, 1.0f);
+
+		ImGui::Text("Scale:");
+		ImGui::SliderFloat("X2", &obj->sizeX, -100.0f, 100.0f);
+		ImGui::SliderFloat("Y2", &obj->sizeY, -100.0f, 100.0f);
+		ImGui::SliderFloat("Z2", &obj->sizeZ, -100.0f, 100.0f);
+
+		float base = (float)obj->baseRad;
+		float top = (float)obj->topRad;
+
+		ImGui::Text("Radius:");
+		if (ImGui::SliderFloat("Base", &base, 0.0f, 100.0f)) obj->baseRad = base;
+		if (ImGui::SliderFloat("Top", &top, 0.0f, 100.0f)) obj->topRad = top;
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 
 		bImGuiDraw = FALSE;
 	}
 	else if (bImGuiDraw)
 	{
+<<<<<<< HEAD
 		if (ImGui::CollapsingHeader("Translate:"))
 		{
 			ImGui::SliderFloat("X", &posX, -100.0f, 100.0f);
@@ -1851,6 +1950,23 @@ void ImGuiUI()
 			ImGui::SliderFloat("Y", &sizeY, -100.0f, 100.0f);
 			ImGui::SliderFloat("Z", &sizeZ, -100.0f, 100.0f);
 		}
+=======
+		ImGui::Text("Translate:");
+		ImGui::SliderFloat("X1", &posX, -100.0f, 100.0f);
+		ImGui::SliderFloat("Y1", &posY, -100.0f, 100.0f);
+		ImGui::SliderFloat("Z1", &posZ, -100.0f, 100.0f);
+
+		ImGui::Text("Rotate:");
+		ImGui::SliderFloat("ang", &ang, 0.0f, 360.0f);
+		ImGui::SliderFloat("X axis", &axisX, 0.0f, 1.0f);
+		ImGui::SliderFloat("Y axis", &axisY, 0.0f, 1.0f);
+		ImGui::SliderFloat("Z axis", &axisZ, 0.0f, 1.0f);
+
+		ImGui::Text("Scale:");
+		ImGui::SliderFloat("X2", &sizeX, -100.0f, 100.0f);
+		ImGui::SliderFloat("Y2", &sizeY, -100.0f, 100.0f);
+		ImGui::SliderFloat("Z2", &sizeZ, -100.0f, 100.0f);
+>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 	}
 
 	// end imgui UI

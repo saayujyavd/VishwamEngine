@@ -23,12 +23,19 @@ using namespace std;
 
 // OGL related headers
 #include <gl/GL.h>
+<<<<<<<< HEAD:cpp/src/OGL.cpp
 #include <gl/GLU.h>
 #include "../include/alut.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imfilebrowser.h"
+========
+#include <al/ALUT.h>
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_opengl3.h"
+>>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768:cpp/Vishwam/src/OGL.cpp
 
 #include "../include/OGL.h"
 #include "../include/Texture.h"
@@ -168,6 +175,7 @@ public:
 
 	// function definitions
 private:
+<<<<<<<< HEAD:cpp/src/OGL.cpp
 	bool handleCollision(Object& obj)
 	{
 		Object* objA = this;
@@ -277,11 +285,59 @@ private:
 			}
 		}
 		return(false);
+========
+	bool collided(Object& obj)
+	{
+		// code
+		GLfloat halfSizeX = sizeX / 4.0f;
+		GLfloat halfSizeY = sizeY / 4.0f;
+		GLfloat halfSizeZ = sizeZ / 4.0f;
+
+		GLfloat leftA = posX - sizeX / 4.0f;
+		GLfloat rightA = posX + sizeX / 4.0f;
+		GLfloat bottomA = posY - sizeY / 4.0f;
+		GLfloat topA = posY + sizeY / 4.0f;
+		GLfloat rearA = posZ - sizeZ / 4.0f;
+		GLfloat frontA = posZ + sizeZ / 4.0f;
+
+		GLfloat leftB = obj.posX - obj.sizeX / 4.0f;
+		GLfloat rightB = obj.posX + obj.sizeX / 4.0f;
+		GLfloat bottomB = obj.posY - obj.sizeY / 4.0f;
+		GLfloat topB = obj.posY + obj.sizeY / 4.0f;
+		GLfloat rearB = obj.posZ - obj.sizeZ / 4.0f;
+		GLfloat frontB = obj.posZ + obj.sizeZ / 4.0f;
+
+		if ((leftA <= rightB && rightA >= leftB)
+			&& (bottomA <= topB && topA >= bottomB)
+			&& (rearA <= frontB && frontA >= rearB))
+		{
+			if (leftA >= leftB)
+				obj.posX = rightB - leftA + (obj.sizeX / 4.0f);
+			else
+				obj.posX = rightA - leftB + (obj.sizeX / 4.0f);
+
+			if (bottomA >= bottomB)
+				obj.posY = topB - bottomA + (obj.sizeY / 4.0f);
+			else
+				obj.posY = topA - bottomB + (obj.sizeY / 4.0f);
+
+			if (rearA >= rearB)
+				obj.posZ = frontB - rearA + (obj.sizeZ / 4.0f);
+			else
+				obj.posZ = frontA - rearB + (obj.sizeZ / 4.0f);
+
+			return(true);
+		}
+		else return(false);
+>>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768:cpp/Vishwam/src/OGL.cpp
 	}
 
 protected:
 	virtual void draw(void) = 0;
+<<<<<<<< HEAD:cpp/src/OGL.cpp
 	virtual void updateObject(void) {}
+========
+>>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768:cpp/Vishwam/src/OGL.cpp
 
 public:
 	Object(Property prop = HANDLE_COLLISION) : property(prop)
@@ -304,6 +360,7 @@ public:
 	{
 		objs = &objects;
 		for (int i = 0; i < objects.size(); ++i)
+<<<<<<<< HEAD:cpp/src/OGL.cpp
 		{
 			objects[i]->draw();
 			objects[i]->updateObject();
@@ -335,6 +392,23 @@ public:
 		for (int i = 0; i < objects.size(); ++i)
 			delete objects[i];
 		objects.clear();
+========
+			objects[i]->draw();
+	}
+
+	static void checkCollisions(void)
+	{
+		if (objs == nullptr) return;
+		for (int i = 0; i < objs->size(); ++i)
+		{
+			Object* obj = (*objs)[i];
+			for (int j = i + 1; j < objs->size(); ++j)
+			{
+				if (obj->collided(*(*objs)[j]))
+					printf("collision\n");
+			}
+		}
+>>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768:cpp/Vishwam/src/OGL.cpp
 	}
 };
 
@@ -374,6 +448,7 @@ class Cube : public Object
 {
 	// function definitions
 	void draw(void) override
+<<<<<<<< HEAD:cpp/src/OGL.cpp
 	{
 		// vertex i as a Point
 		auto v = [this](int i)
@@ -487,6 +562,8 @@ class TexQuad2D : public Object
 	GLfloat quadCoords[8];
 
 	void draw(void) override
+========
+>>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768:cpp/Vishwam/src/OGL.cpp
 	{
 		glPushMatrix();
 		glTranslatef(posX, posY, posZ);
@@ -1124,10 +1201,10 @@ int initialize(void)
 
 	// warmup resize
 	resize(WIN_WIDTH, WIN_HEIGHT);
-
+	/*
 	// init OAL audio & imgui
 	initALAud();
-	initImGui();
+	initImGui();*/
 
 	return(0);
 }
@@ -1286,8 +1363,6 @@ void keyUp(unsigned char key, int x, int y)
 			alSourceStop(alSource[0]);
 			bFootstepsAud = FALSE;
 		}
-		if(bPlayerKeyDown)
-			bPlayerKeyDown = FALSE;
 		break;
 
 	default:
@@ -1440,12 +1515,16 @@ void uninitialize(void)
 
 void KeyHandler::keyHandler(void)
 {
+	// function prototypes
+	void person(void);
+
 	// variables
 	GLfloat camspeed = 0.05f;
 
 	// code
 	if (bHandleKeys)
 	{
+<<<<<<<< HEAD:cpp/src/OGL.cpp
 		switch (key)
 		{
 		case 'W':
@@ -1482,6 +1561,36 @@ void KeyHandler::keyHandler(void)
 	else
 	{
 		keyUp(key, keyX, keyY);
+========
+	case 'W':
+	case 'w':
+		eye += lookdir.unitv() * camspeed;
+		person();
+		break;
+
+	case 'S':
+	case 's':
+		eye -= lookdir.unitv() * camspeed;
+		person();
+		break;
+
+	case 'A':
+	case 'a':
+		eye -= vec3(lookdir * up).unitv() *
+			camspeed;
+		person();
+		break;
+
+	case 'D':
+	case 'd':
+		eye += vec3(lookdir * up).unitv() *
+			camspeed;
+		person();
+		break;
+
+	default:
+		break;
+>>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768:cpp/Vishwam/src/OGL.cpp
 	}
 }
 
@@ -1570,8 +1679,28 @@ void quad(Point a, Point b, Point c,
 	glEnd();
 }
 
+<<<<<<<< HEAD:cpp/src/OGL.cpp
 void newCollisionCube(vec3 pos, vec3 size,
 	GLfloat ang, vec3 axis)
+========
+void person(void)
+{
+	// code
+	if (bFreeLook == FALSE)
+	{
+		if (bFootstepsAud == FALSE)
+		{
+			alSourcePlay(alSource[0]);
+			bFootstepsAud = TRUE;
+		}
+		eye.y = 0.5 + (0.1f
+			* sinf(camSinAng));
+		camSinAng += 0.1f;
+	}
+}
+
+void freeLook(int button, int state, int x, int y)
+>>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768:cpp/Vishwam/src/OGL.cpp
 {
 	// variables
 	Cube* cube = new Cube();
@@ -2085,6 +2214,12 @@ void ImGuiUpdate(void)
 	FILE* f_imgui = NULL;
 
 	// code
+<<<<<<<< HEAD:cpp/src/OGL.cpp
+========
+	Object::drawObjects(objects);
+	Object::checkCollisions();
+
+>>>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768:cpp/Vishwam/src/OGL.cpp
 	if (f_imgui == NULL && bImGuiExport == TRUE)
 	{
 		if ((f_imgui = fopen("imgui.txt", "a"))
