@@ -26,11 +26,8 @@ struct Object
 	Property property;
 	Color color;
 	GLuint texture;
-<<<<<<< HEAD
 	GLuint vertexCount;
 	GLfloat* vertices;
-=======
->>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 	GLfloat* texCoords, *quadCoords;
 	GLfloat posX, posY, posZ;
 	GLfloat sizeX, sizeY, sizeZ;
@@ -52,11 +49,7 @@ Object* newObject(Object::Property);
 ObjVect objVect(int);
 void emptyObjVect(ObjVect*);
 void deleteObjVect(ObjVect*);
-<<<<<<< HEAD
 void objectInit(Object*, Object::Property, GLfloat[], GLuint);
-=======
-void objectInit(Object*, Object::Property);
->>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 bool handleCollision(Object*, Object*);
 void handleCollisionsOf(Object*);
 void drawObjects(ObjVect*);

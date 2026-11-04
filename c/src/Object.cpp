@@ -133,16 +133,11 @@ bool handleCollision(Object* objA, Object* objB)
 	return(false);
 }
 
-<<<<<<< HEAD
 void objectInit(Object* obj, Object::Property prop, GLfloat v[], GLuint count)
-=======
-void objectInit(Object* obj, Object::Property prop)
->>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 {
 	// code
 	memset(obj, 0, sizeof(Object));
 
-<<<<<<< HEAD
 	obj->vertices = NULL;
 	obj->vertexCount = 0;
 	if (count > 0)
@@ -155,8 +150,6 @@ void objectInit(Object* obj, Object::Property prop)
 		}
 	}
 
-=======
->>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 	obj->sizeX = 1.0f;
 	obj->sizeY = 1.0f;
 	obj->sizeZ = 1.0f;
@@ -191,15 +184,10 @@ void objectInit(Object* obj, Object::Property prop)
 Object* newObject(Object::Property prop)
 {
 	Object* obj = (Object*)malloc(sizeof(Object));
-<<<<<<< HEAD
 	GLfloat v[1];
 
 	if (obj != NULL)
 		objectInit(obj, prop, v, 0);
-=======
-	if (obj != NULL)
-		objectInit(obj, prop);
->>>>>>> e1f1a149b16082dc38e84592eb6da50cde74f768
 
 	return(obj);
 }
