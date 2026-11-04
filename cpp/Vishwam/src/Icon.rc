@@ -1,3 +1,0 @@
-#include"../include/Icon.h"
-
-SVDICON ICON "../rsc/Icon.ico"

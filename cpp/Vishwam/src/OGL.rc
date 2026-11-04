@@ -1,3 +1,0 @@
-#include "include/OGL.h"
-
-MYICON ICON "Icon.ico"
