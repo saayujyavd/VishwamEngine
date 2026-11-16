@@ -1,7 +1,7 @@
 cls
 del *.obj
 
-cl.exe /c /EHsc ./src/*.cpp ./src/imgui/*.cpp
+cl.exe /c /EHsc ./src/Vishwam.cpp ./src/OGL.cpp ./src/Light.cpp ./src/Texture.cpp ./src/imgui/*.cpp
 rc.exe ./src/Icon.rc
 
 cd ./src/

@@ -53,17 +53,17 @@ void texQuad2D(GLuint texture,
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glBegin(GL_QUADS);
-	glTexCoord2f(texCoords[0], texCoords[1]);
-	glVertex3f(quadCoords[0], quadCoords[1], 0.0f);
+	glTexCoord3f(texCoords[0], texCoords[1], texCoords[2]);
+	glVertex3f(quadCoords[0], quadCoords[1], quadCoords[2]);
 
-	glTexCoord2f(texCoords[2], texCoords[3]);
-	glVertex3f(quadCoords[2], quadCoords[3], 0.0f);
+	glTexCoord3f(texCoords[3], texCoords[4], texCoords[5]);
+	glVertex3f(quadCoords[3], quadCoords[4], quadCoords[5]);
 
-	glTexCoord2f(texCoords[4], texCoords[5]);
-	glVertex3f(quadCoords[4], quadCoords[5], 0.0f);
+	glTexCoord3f(texCoords[6], texCoords[7], texCoords[8]);
+	glVertex3f(quadCoords[6], quadCoords[7], quadCoords[8]);
 
-	glTexCoord2f(texCoords[6], texCoords[7]);
-	glVertex3f(quadCoords[6], quadCoords[7], 0.0f);
+	glTexCoord3f(texCoords[9], texCoords[10], texCoords[11]);
+	glVertex3f(quadCoords[9], quadCoords[10], quadCoords[11]);
 	glEnd();
 
 	glFlush();
